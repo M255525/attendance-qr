@@ -135,7 +135,7 @@ async def main():
         # 教室大廳（要部署新版轉播站才有）
         def lobby():
             try:
-                req = urllib.request.Request(LOBBY, headers={'Origin': 'https://m255525.github.io'})
+                req = urllib.request.Request(LOBBY, headers={'Origin': 'https://m255525.github.io', 'User-Agent': 'Mozilla/5.0 (e2e test)'})  # 沒帶 UA 會被 Cloudflare 擋 403
                 return json.loads(urllib.request.urlopen(req, timeout=10).read().decode('utf-8')).get('rooms', [])
             except Exception as e: return None
         await T2.wait_for_timeout(2500)
