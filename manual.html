@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>出席簽到 QR・操作手冊</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1F2544;--sub:#5D6385;--bg:#EEF1F4;--paper:#FFFDF7;--line:#E3D8C2;--navy:#2B3640;--gold:#F2B134;--red:#C8372D;--blue:#0B6E99}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;font-weight:500;font-size:17px;line-height:1.75}
+main{max-width:800px;margin:0 auto;padding:20px 16px 48px}
+h1,h2{font-family:'Noto Sans TC',sans-serif;font-weight:900;line-height:1.35}
+h1{font-size:30px;margin:0 0 6px;color:var(--navy)}
+h2{font-size:22px;margin:4px 0 8px;color:var(--navy)}
+section{background:var(--paper);border-radius:14px;box-shadow:0 0 0 1.5px var(--line),0 4px 0 var(--line);padding:12px 18px 14px;margin-top:14px}
+a{color:var(--blue);font-weight:700}
+li{margin:5px 0}
+ol,ul{padding-left:1.3em}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:540px}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--bg)}
+.red{color:var(--red);font-weight:900}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#e11d2e;margin-right:3px}
+@media print{body{background:#fff}section{break-inside:avoid;box-shadow:0 0 0 1px #888}}
+</style>
+<body>
+<main>
+<h1>⏱ 出席簽到 QR・操作手冊</h1>
+<p><a href="index.html">← 回到簽到台</a></p>
+
+<section>
+<h2>這是什麼</h2>
+<p>上課時把 QR code 投影出來，學生用<b>手機相機掃描</b>、輸入學號和姓名，就完成簽到；下課前切成「簽退」再掃一次。系統依上課時間自動判斷<b>準時、遲到、早退</b>，算出每堂的<b>出席時數</b>和整門課的<b>出席率</b>，可以匯出出席總表、列印簽到表，也能直接匯出給<a href="https://m255525.github.io/training-certificate-generator/">訓練證書產生器</a>的名單。</p>
+<p>學生不用裝 App、不用註冊。名單和簽到紀錄只存在老師這台電腦。</p>
+</section>
+
+<section>
+<h2>第一次使用</h2>
+<ol>
+<li>打開後會先放一個範例課程（6 位虛構學生、今天一堂課），可以先按「▶ 開始簽到」用自己的手機掃掃看。</li>
+<li>按「＋ 新課程」建立自己的課，在「📝 課程設定」填課名、遲到與早退寬限、出席率門檻、時數算法。</li>
+<li>按「👥 名單」：從 Excel 複製「學號、姓名」兩欄貼上，或直接開啟 .xlsx／.csv。可以多一欄「組別」與「身分證字號」（身分證只用在匯出給證書產生器，不會傳到學生手機）。</li>
+<li>左邊「＋ 新增一堂」：填日期、開始與結束時間；有午休的話把「時數」填實際上課時數。</li>
+</ol>
+<p>沒有名單也可以直接開始，誰簽到就自動加進名單。</p>
+</section>
+
+<section>
+<h2>上課時</h2>
+<ol>
+<li>點左邊要上的那一堂，按「▶ 開始簽到」。</li>
+<li>按「⛶ 投影 QR」把 QR 放大到投影幕（按 Esc 回主持台）。</li>
+<li>學生用手機相機掃描 → 輸入學號、姓名 → 按「簽到」。手機會顯示「簽到成功・準時」或「遲到」。</li>
+<li>主持台上每個人是一張出勤卡，會即時蓋上簽到時間；最上面有已到、遲到、未到人數。</li>
+<li>下課前把右上的「簽到／簽退」切到「簽退」，學生再掃一次。</li>
+<li>結束後按「⏹ 結束簽到」，學生手機上的舊連結就失效了。</li>
+</ol>
+</section>
+
+<section>
+<h2>怎麼防代簽</h2>
+<ul>
+<li><b>現場碼每 20 秒換一次</b>（⚙ 可改 10～60 秒或不換）。QR 裡帶著現場碼，學生掃完要在 2 分鐘內送出，拍照傳給沒來的人很快就失效。</li>
+<li><b>一支手機只能幫一個人簽</b>：同一支手機想幫第二個人簽，會被擋下來，主持台出現紅色提醒，由老師決定算不算。</li>
+<li><b>名單外的人</b>（學號打錯、旁聽生）不會直接算出席，主持台出現黃色提醒，老師按「加進名單並算出席」才算。</li>
+<li>沒辦法掃描的學生，可以打開投影幕上的網址，輸入 4 位數現場碼。</li>
+</ul>
+<p class="red">這些方法可以減少代簽，但防不了所有作弊（例如把手機借給別人）。重要的課程請搭配現場點名或紙本簽名。</p>
+</section>
+
+<section>
+<h2>遲到、早退、出席時數怎麼算</h2>
+<ul>
+<li>簽到時間晚於「開始時間＋遲到寬限」＝遲到；簽退時間早於「結束時間－早退寬限」＝早退。</li>
+<li><b>依實際在場時間</b>（預設）：在場時間佔整堂的比例 × 這堂時數，以 0.5 小時為單位無條件捨去。準時又沒早退就是整堂時數；沒有簽退的話算到下課。</li>
+<li><b>有到就算整堂</b>：只要有簽到就給整堂時數。</li>
+<li>點任何一張出勤卡可以手動修改：補簽到時間、改成請假（不計時數）、公假（計時數）、缺席，並寫備註。</li>
+<li>這堂課結束時間過了還沒簽到的人，會自動標成缺席。</li>
+</ul>
+<p>門檻（2/3、80%、100%）與算法只是預設值，請依各計畫或公司的最新規定設定。</p>
+</section>
+
+<section>
+<h2>總表、匯出、列印</h2>
+<ul>
+<li><b>📊 總表</b>：每位學生每一堂的狀態、總出席時數、出席率、有沒有達標。點格子可以跳到那一堂修改。</li>
+<li><b>出席總表</b>：Excel 或 CSV。</li>
+<li><b>這一堂的簽到紀錄</b>：CSV，含簽到簽退時間、遲到早退分鐘、時數、方式（掃碼／老師登記）。</li>
+<li><b>🎓 給訓練證書產生器的名單</b>：Excel，三欄「姓名、身分證字號、出席時數」。在訓練證書產生器的學員名單按「開啟 Excel」選這個檔，就會自動判斷誰達到發證門檻。</li>
+<li><b>🖨 列印簽到表</b>：這一堂的名單、狀態、時間，加上簽名欄，可以當紙本備份；<b>🖨 列印出席總表</b>會印成橫式。</li>
+<li><b>💾 備份／還原</b>：把整個課程存成 .json，換電腦時用。</li>
+</ul>
+</section>
+
+<section>
+<h2>⚙ 常用設定</h2>
+<ul>
+<li><b>現場碼多久換一次</b>：10、20、30、60 秒或不換（不換的話可以把 QR 印出來貼門口，但老師這頁仍要開著並按開始簽到）。</li>
+<li><b>掃完多久內要送出</b>：1、2、5 分鐘。</li>
+<li><b>顯示與音效</b>：大字；有人簽到時的提示音可以關掉。</li>
+<li><b>清除全部資料</b>、<b>關於本工具</b>。</li>
+</ul>
+</section>
+
+<section>
+<h2>技術說明</h2>
+<p>手機和老師電腦之間借用「創業島」的轉播服務（Cloudflare），學生的學號姓名只經過轉播、不保存。老師回覆給手機的訊息只帶手機代號和結果代碼，不會讓其他同學看到誰簽到了。轉播服務會把不雅字詞遮成 *，所以比對以學號為主。</p>
+</section>
+
+<section>
+<h2>⚠ 使用警語</h2>
+<ul>
+<li>掃碼簽到可以減少代簽，但防不了所有作弊。</li>
+<li>寬限分鐘、門檻與時數算法請依各計畫或公司規定設定；匯出的時數請核對後再用於結訓或請款。</li>
+<li>名單與紀錄（含身分證字號）只存在這台電腦的瀏覽器，換電腦或清除資料前請先備份。</li>
+<li>簽到時間以轉播伺服器收到的時間為準；網路不穩時請手動登記。範例中的人名全部虛構。</li>
+</ul>
+</section>
+
+<section id="creator">
+<h2>👤 關於創作者</h2>
+<div class="mk-creator">
+<style>.mk-creator{line-height:1.75}.mk-creator h3{margin:14px 0 6px;font-size:1.05em}.mk-creator table{width:100%;border-collapse:collapse;font-size:.95em}.mk-creator td,.mk-creator th{text-align:left;padding:5px 6px;border-bottom:1px solid rgba(128,128,128,.3);vertical-align:top}.mk-creator th{white-space:nowrap}.mk-creator ul{margin:4px 0;padding-left:1.4em}.mk-creator .mk-tags{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}.mk-creator .mk-tags span{border:1px solid rgba(128,128,128,.45);border-radius:999px;padding:1px 10px;font-size:.9em}</style>
+<p><b>Mark Tsai（蔡豐全）</b>為深耕創業輔導與數位轉型領域的顧問與講師，長期擔任勞動力發展署創業顧問與多項政府計畫的顧問、業師與評審委員，協助中小企業導入數據分析與 AI 工具、申請政府補助計畫，並具備跨境電商實務與講師培訓的豐富經驗。本工具是其推廣 AI 工具運用於教學與課程情境的作品之一。</p>
+<p>聯絡信箱：<a href="mailto:tsaimark@gmail.com">tsaimark@gmail.com</a></p>
+<h3>專長</h3>
+<div class="mk-tags"><span>銷售數據分析</span><span>AI 工具運用</span><span>政府補助計畫申請</span><span>創業</span><span>跨境電商</span></div>
+<h3>證照</h3>
+<table>
+<thead><tr><th>年度</th><th>證照</th></tr></thead>
+<tbody>
+<tr><td>2013</td><td>青創總會 創業輔導顧問師班</td></tr>
+<tr><td>2014</td><td>青創總會 網路行銷講師培訓班</td></tr>
+<tr><td>2016</td><td>阿里巴巴 P4P 認證講師</td></tr>
+<tr><td>2017</td><td>iCap 訓練規劃與評量職能基準課程</td></tr>
+<tr><td>2023</td><td>iCap 職能導向課程申請認證實作班</td></tr>
+<tr><td>2025</td><td>iPAS AI 應用規劃師－初級</td></tr>
+<tr><td>2025</td><td>新北市社會局 社區數位陪伴員</td></tr>
+</tbody>
+</table>
+<h3>經歷</h3>
+<ul>
+<li>勞動力發展署桃竹苗分署 創業顧問（2017－迄今）</li>
+<li>勞動力發展署（北北基）小型企業人力提升計畫 顧問（2019－迄今）</li>
+<li>勞動力發展署（桃竹苗）小型企業人力提升計畫 顧問（2019－迄今）</li>
+<li>農業部農業科技司「科技農企業雙軸轉型躍升發展」科技計畫 業師（2025－2026）</li>
+<li>勞動力發展署 企業人力資源提升計畫 審查委員（2024）</li>
+<li>勞動力發展署 職前訓練評鑑計畫 委員（2022）</li>
+<li>勞動部桃竹苗分署 桃竹苗區域運籌人力資源整合服務計畫 顧問（2022－2023）</li>
+<li>經濟部中小企業處 SBIR 海選專案 評審委員（2019－2024）</li>
+<li>勞動力發展署 數位學習課程清單審查會議 審查委員（2024－2025）</li>
+<li>輔仁大學創新跨領域學院 課務委員（2024－2025）</li>
+<li>台北市進出口商業同業公會 跨境電商生態村 顧問</li>
+<li>台灣網商協會 顧問</li>
+<li>中華職能開發策進會 顧問（2018－2020）</li>
+<li>新北市汽車美容人員職業工會 顧問（2023－迄今）</li>
+<li>中華網路行銷講師協會 顧問（2022－迄今）</li>
+<li>新北市社企電商基地 輔導顧問（2018－2020）</li>
+<li>阿里巴巴國際站平台 認證講師（2016）</li>
+<li>巨匠電腦 跨境電子商務班 講師（2016－2017）</li>
+</ul>
+</div>
+</section>
+<p style="text-align:center"><a href="index.html">← 回到簽到台</a></p>
+</main>
+</body>
+</html>
