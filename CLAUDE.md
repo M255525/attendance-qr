@@ -2,7 +2,7 @@
 
 講師投影 QR code，學生用手機掃描、輸入學號姓名就完成簽到（老師切「簽退」再掃一次）。依上課時間＋寬限自動判斷準時／遲到／早退，算每堂出席時數與整門課出席率；名單外、同一支手機幫第二個人簽、現場碼過期都會擋下來給老師決定。匯出出席總表（xlsx／CSV）、單堂紀錄 CSV、**給訓練證書產生器的 xlsx（姓名、身分證字號、出席時數，證書產生器會自動認欄位）**、列印簽到表（含簽名欄）與橫式總表、課程備份 JSON。
 
-2026-11-17 建立。使用者從「更多方向」清單挑「出席簽到 QR」，規格由 Claude 決定。標準五件套、無序號、無 AI。**尚未上線**（先問；預定網址 https://m255525.github.io/attendance-qr/ ，寫死在 `app.js` 的 `ONLINE`，不在 github.io 時 QR 一律指向它——本機測試要自己組 `?join=&k=` 網址）。
+2026-11-17 建立。使用者從「更多方向」清單挑「出席簽到 QR」，規格由 Claude 決定。標準五件套、無序號、無 AI。**2026-11-17 已上線** <https://m255525.github.io/attendance-qr/>（`ONLINE` 寫死在 `app.js`，不在 github.io 時 QR 一律指向它——本機測試要自己組 `?join=&k=` 網址）。開 Pages 後立刻補 master 許可，第一次部署就成功；線上 `ATQ_BASE=https://m255525.github.io/attendance-qr/ python tools/e2e_attend.py` 43 項全過。已加進 AI 工具導航（辦訓補助第三站、課堂互動第一站）、程式牆與 github-dashboard `REPO_META`。上線改版要升 `service-worker.js` 的 `CACHE_NAME`。
 
 ## 檔案
 - `data.js`（`window.ATQ`，node 可 require）：現場碼、名單解析與比對、訊息編解碼、狀態與時數、總表與匯出列、範例。
