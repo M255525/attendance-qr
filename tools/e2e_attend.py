@@ -28,7 +28,7 @@ async def main():
         check(await T.is_visible('a[href="manual.html"]') and await T.is_visible('.foot a[href="manual.html#creator"]') and await T.is_visible('.foot [data-act=install]') and await T.locator('.foot img[src*="attendanceqr"]').count() == 1 and await T.is_visible('.warn-line [data-act=warn]'), '五件套入口')
         # 讓這堂課「剛開始 5 分鐘」，才能測準時
         await T.evaluate('''(()=>{const A=window._atq, P=window.ATQ, s=A.C.sessions[0], n=Date.now();
-          s.date=P.ymd(n); s.start=P.hm(n-5*60000); var e=Math.min(n+150*60000, new Date(new Date(n).setHours(23,59,0,0)).getTime()); s.end=P.hm(e); s.hours=''; A.render();})()''')
+          var d0=new Date(n); d0.setHours(0,0,0,0); s.date=P.ymd(n); s.start=P.hm(Math.max(n-5*60000, d0.getTime())); var e=Math.min(n+150*60000, new Date(new Date(n).setHours(23,59,0,0)).getTime()); s.end=P.hm(e); s.hours=''; A.render();})()''')
         await T.click('[data-act=start]')
         await T.wait_for_function('window._atq.NET.status==="on"', timeout=15000)
         await T.wait_for_function('window._atq.QR.img && window._atq.QR.img.length>100', timeout=15000)
@@ -61,7 +61,8 @@ async def main():
         await T.wait_for_timeout(300)
         check('準時' not in await T.text_content('.tcard >> nth=0') and await T.evaluate('!!window._atq.C.sessions[0].recs["n:A001"].in'), '老師端記下王小明簽到時間')
         # 遲到
-        await T.evaluate('''(()=>{const A=window._atq,P=window.ATQ,s=A.C.sessions[0];s.start=P.hm(Date.now()-40*60000);})()''')
+        # 遲到寬限改成負的＝現在簽到一定算遲到（不挪開課時間，半夜跑也不會跨日）
+        await T.evaluate('''(()=>{window._atq.C.rule.late=-30;})()''')
         Bp = await phone('陳美玲')
         c = await sign(Bp, 'a002', '陳美玲')
         check(c == 2 and '遲到' in await Bp.text_content('.res'), '陳美玲（學號小寫）：遲到')
