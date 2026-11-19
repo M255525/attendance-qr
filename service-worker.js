@@ -1,10 +1,11 @@
-// 加入主畫面＋離線可用。network-first＋同源快取備援，不快取跨網域請求。
-const CACHE_NAME = 'course-poster-maker-v2';
+// 加入主畫面＋離線可用。只清自己舊版的快取（同網域的其他工具共用 Cache Storage）。network-first＋同源快取備援，不快取跨網域請求。
+const CACHE_NAME = 'attendance-qr-v3';
 const SHELL_FILES = [
   './',
   './index.html',
   './data.js',
   './io.js',
+  './course-link.js',
   './app.js',
   './manual.html',
   './manifest.json',
@@ -23,7 +24,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME && k.indexOf(CACHE_NAME.replace(/\d+$/, '')) === 0).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });

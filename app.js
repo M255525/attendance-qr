@@ -422,7 +422,7 @@ function courseSetHtml(){
 function rosterHtml(){
   return '<h2>👥 名單（' + C.roster.length + ' 人）</h2><p class="small">從 Excel 複製「學號、姓名」兩欄貼上，或開啟 .xlsx／.csv。可以多一欄「身分證字號」（只用在匯出給訓練證書產生器，不會傳到學生手機）和「組別」。</p>' +
     '<textarea id="rText" rows="8" placeholder="學號&#9;姓名&#10;A001&#9;王小明&#10;A002&#9;陳美玲"></textarea>' +
-    '<div class="stack"><button type="button" class="btn" data-act="rAdd">加入名單</button><button type="button" class="btn alt" data-act="rReplace">取代整份名單</button><label class="btn alt">📂 開啟 Excel／CSV<input type="file" id="rFile" accept=".xlsx,.csv,.txt,.tsv" hidden></label>' + (C.roster.length ? '<button type="button" class="btn red sm" data-act="rClear">清空名單</button>' : '') + '<button type="button" class="btn alt" data-act="close">關閉</button></div>' +
+    '<div class="stack"><button type="button" class="btn" data-act="rAdd">加入名單</button><button type="button" class="btn alt" data-act="rReplace">取代整份名單</button><label class="btn alt">📂 開啟 Excel／CSV<input type="file" id="rFile" accept=".xlsx,.csv,.txt,.tsv" hidden></label>' + (MK ? '<button type="button" class="btn alt" data-act="mkPick">📥 從課程專案帶入</button>' : '') + (C.roster.length ? '<button type="button" class="btn red sm" data-act="rClear">清空名單</button>' : '') + '<button type="button" class="btn alt" data-act="close">關閉</button></div>' +
     (C.roster.length ? '<div class="tbl"><table><tr><th>學號</th><th>姓名</th><th>組別</th><th>身分證</th><th></th></tr>' + C.roster.map(function(p, i){ return '<tr><td>' + esc(p.no) + '</td><td>' + esc(p.name) + '</td><td>' + esc(p.group) + '</td><td>' + esc(P.maskId(p.idno)) + '</td><td><button type="button" class="btn alt sm" data-rdel="' + i + '" aria-label="移除 ' + esc(p.name) + '">移除</button></td></tr>'; }).join('') + '</table></div>' : '');
 }
 function addRoster(list, replace){
@@ -430,6 +430,44 @@ function addRoster(list, replace){
   if(replace) C.roster = [];
   var n = 0; list.forEach(function(p){ if(!C.roster.some(function(x){ return P.keyOf(x) === P.keyOf(p); })){ C.roster.push(p); n++; } });
   saveC(); render(); openModal(rosterHtml(), true); toast('加入 ' + n + ' 人');
+}
+/* ---------- 課程專案（course-link.js；沒有也照常運作） ---------- */
+var MK = window.MKCourse && window.MKCourse.store ? window.MKCourse : null;
+function mkPickHtml(){
+  var list = MK.store.list();
+  return '<h2>📥 從課程專案帶入</h2><p class="small">課程專案是同一台電腦上各辦訓工具共用的課程與名單（招生海報、訓練證書產生器…）。帶入會<b>取代這個課程的名單</b>，課程名稱和辦訓單位也會換成專案裡的；堂次和簽到紀錄不動。</p>' +
+    (list.length ? '<div class="stack col">' + list.map(function(d){ return '<button type="button" class="btn alt" data-mkin="' + esc(d.id) + '">' + esc(MKCourse.label(d)) + ' <small>' + esc(MKCourse.when(d)) + (C.mk === d.id ? '・目前連結' : '') + '</small></button>'; }).join('') + '</div>' : '<p>這台電腦還沒有課程專案。可以在「⬇ 匯出・列印」按「📤 存到課程專案」建立，或開啟別人給你的課程專案檔。</p>') +
+    '<div class="stack"><label class="btn alt">📂 開啟課程專案檔（.json）<input type="file" id="mkFile" accept=".json,application/json" hidden></label><button type="button" class="btn alt" data-act="close">取消</button></div>';
+}
+function mkImport(id){
+  var d = MK.store.get(id); if(!d){ toast('找不到這個課程專案'); return; }
+  if(courseLive(C.id)){ blocked('簽到中不能取代整份名單。'); return; }
+  var go = function(){
+    C.roster = d.students.map(function(s){ return {no:s.sid, name:s.name, idno:s.idNo || '', group:s.group || ''}; });
+    if(d.course.title) C.name = P.cut(d.course.title + (d.course.term ? ' ' + d.course.term : ''), 40);
+    if(d.course.org) C.unit = P.cut(d.course.org, 40);
+    C.mk = d.id; saveC(); closeModal(); render(); toast('已帶入「' + d.course.title + '」' + C.roster.length + ' 人');
+  };
+  if(C.roster.length) sureOr('用課程專案「' + P.cut(d.course.title, 20) + '」取代整份名單（' + C.roster.length + ' 人）', go); else go();
+}
+function mkExport(){
+  var S = P.summary(C, now()), old = C.mk ? MK.store.get(C.mk) : null, oldBy = {};
+  (old ? old.students : []).forEach(function(s){ oldBy[MKCourse.studentKey(s)] = s; });
+  var hours = {}, pass = {};
+  var students = S.rows.map(function(r){
+    var o = oldBy[r.key] || {};
+    hours[r.key] = r.att; if(r.pass != null) pass[r.key] = r.pass;
+    return Object.assign({}, o, {sid:r.p.no || '', name:r.p.name, idNo:r.p.idno || o.idNo || '', group:r.p.group || o.group || ''});
+  });
+  var dates = C.sessions.map(function(s){ return s.date; }).filter(Boolean).sort(), course = {title:C.name};
+  if(C.unit) course.org = C.unit;
+  if(S.planned > 0) course.hours = S.planned;
+  if(dates.length){ course.start = dates[0]; course.end = dates[dates.length - 1]; }
+  var doc = MK.store.save(C.mk || null, {course:course, students:students, result:{planned:S.planned, ratio:C.rule.ratio || '', sessions:C.sessions.length, hours:hours, pass:pass}}, 'attendance-qr');
+  if(!doc){ toast('瀏覽器空間不足或封鎖網站資料，存不進課程專案；請改用「給訓練證書產生器的名單」Excel'); return; }
+  C.mk = doc.id; saveC();
+  openModal('<h2>📤 已存到課程專案</h2><p>「' + esc(MKCourse.label(doc)) + '」</p><p class="small">同一台電腦打開<b>訓練證書產生器</b>，在「學員名單」按「📥 從課程專案帶入」，就會帶入名單、身分證字號和每個人的出席時數。換電腦的話請下載課程專案檔帶過去（檔案含身分證字號，請小心保管）。</p>' +
+    '<div class="stack"><button type="button" class="btn alt" data-act="mkDl">⬇ 下載課程專案檔</button><button type="button" class="btn" data-act="close">好</button></div>');
 }
 function sessHtml(s){
   var isNew = !s; s = s || {date:P.ymd(now()), start:'09:00', end:'12:00', hours:'', title:'第 ' + (C.sessions.length + 1) + ' 堂'};
@@ -453,6 +491,7 @@ function exportHtml(){
     '<button type="button" class="btn" data-act="xSumX">📊 出席總表（Excel）</button><button type="button" class="btn alt" data-act="xSumC">📊 出席總表（CSV）</button>' +
     '<button type="button" class="btn alt" data-act="xSess">🕘 這一堂的簽到紀錄（CSV）</button>' +
     '<button type="button" class="btn green" data-act="xCert">🎓 給訓練證書產生器的名單（Excel：姓名、身分證字號、出席時數）</button>' +
+    (MK ? '<button type="button" class="btn green" data-act="mkOut">📤 存到課程專案（訓練證書產生器可直接帶入）</button>' : '') +
     '<button type="button" class="btn alt" data-act="pSess">🖨 列印這一堂的簽到表（含簽名欄）</button><button type="button" class="btn alt" data-act="pSum">🖨 列印出席總表</button>' +
     '<button type="button" class="btn alt" data-act="backup">💾 備份這個課程（.json）</button><label class="btn alt">📂 還原備份<input type="file" id="bFile" accept=".json,application/json" hidden></label></div>' +
     '<p class="small">訓練證書產生器在「學員名單」按「開啟 Excel」選這個檔，會自動認出姓名、身分證字號、出席時數三欄。</p><div class="stack"><button type="button" class="btn alt" data-act="close">關閉</button></div>';
@@ -538,6 +577,9 @@ var ACT = {
   xSumC:function(){ saveBlob(safeName(C.name) + '_出席總表.csv', new Blob(['﻿' + IO.csvText(P.exportRows(C, now(), false))], {type:'text/csv;charset=utf-8'})); },
   xSess:function(){ var s = curSess(); saveBlob(safeName(C.name) + '_' + s.date + '_簽到紀錄.csv', new Blob(['﻿' + IO.csvText(P.sessRows(C, s, now()))], {type:'text/csv;charset=utf-8'})); },
   xCert:function(){ saveBlob(safeName(C.name) + '_給訓練證書產生器.xlsx', IO.xlsxBlob(P.certRows(C, now()), '名單', [10, 14, 10, 10])); toast('已下載。身分證字號只有名單裡有填才會帶出'); },
+  mkPick:function(){ if(roOther()){ toast('這個課程正在另一個分頁簽到，請到那邊修改'); return; } openModal(mkPickHtml(), true); },
+  mkOut:function(){ if(roOther()){ toast('這個課程正在另一個分頁簽到，請到那邊匯出'); return; } mkExport(); },
+  mkDl:function(){ var d = C.mk && MK.store.get(C.mk); if(!d){ toast('找不到課程專案'); return; } saveBlob(MKCourse.fileName(d), new Blob([MKCourse.toText(d)], {type:'application/json'})); },
   pSess:function(){ doPrint('sess'); }, pSum:function(){ doPrint('sum'); },
   backup:function(){ guardView('備份', function(){ saveBlob(safeName(C.name) + '_出席備份_' + P.ymd(now()) + '.json', new Blob([JSON.stringify({app:'attendance-qr', v:1, course:C})], {type:'application/json'})); }); },
   wipe:function(){ if(liveAnywhere()){ blocked('有分頁正在簽到，不能清除全部資料。'); return; } sureOr('清除全部資料（所有課程、名單、簽到紀錄，管理密碼保留）', function(){ wipeAll(true); }); },
@@ -558,7 +600,7 @@ var ACT = {
   whoNow:function(){ var v = P.hm(now()); $('wIn').value = v; },
 };
 document.addEventListener('click', function(e){
-  var t = e.target.closest('[data-act],[data-lob],[data-sess],[data-mode],[data-who],[data-whosave],[data-whoclr],[data-sesssave],[data-sessdel],[data-cfg],[data-pok],[data-pno],[data-dok],[data-dno],[data-rdel],[data-goto],[data-send],[data-again]');
+  var t = e.target.closest('[data-act],[data-lob],[data-sess],[data-mode],[data-who],[data-whosave],[data-whoclr],[data-sesssave],[data-sessdel],[data-cfg],[data-pok],[data-pno],[data-dok],[data-dno],[data-rdel],[data-mkin],[data-goto],[data-send],[data-again]');
   if(!t) return;
   var d = t.dataset;
   if(d.act && ACT[d.act]){ if(t.tagName === 'A') e.preventDefault(); ACT[d.act](); return; }
@@ -596,6 +638,7 @@ document.addEventListener('click', function(e){
   if(d.pno != null){ s.pending.splice(+d.pno, 1); saveC(); paintMain(); return; }
   if(d.dok != null){ var y = s.dupes.splice(+d.dok, 1)[0], r = s.recs[y.key] || {}; if(!r.in) r.in = y.at; r.how = 'manual'; r.note = (r.note ? r.note + '；' : '') + '用別人的手機簽到，老師確認'; s.recs[y.key] = r; saveC(); paintMain(); return; }
   if(d.dno != null){ s.dupes.splice(+d.dno, 1); saveC(); paintMain(); return; }
+  if(d.mkin){ mkImport(d.mkin); return; }
   if(d.rdel != null){ C.roster.splice(+d.rdel, 1); saveC(); render(); openModal(rosterHtml(), true); return; }
   if(d.goto != null){ C.cur = C.sessions[+d.goto].id; saveC(); closeModal(); render(); openWho(d.gk); return; }
 });
@@ -604,6 +647,11 @@ document.addEventListener('change', function(e){
   if(t.id === 'courseSel'){ if(L.open){ toast('簽到中不能換課程，請先結束簽到；要同時簽另一班，請另開一個分頁'); t.value = C.id; return; } C = loadC(t.value); ssSet('cur', C.id); lsSet('cur', C.id); render(); return; }
   if(t.id === 'muteChk'){ lsSet('mute', t.checked ? '1' : '0'); return; }
   if(t.id === 'rFile' && t.files[0]){ IO.readFile(t.files[0]).then(function(r){ addRoster(P.parseRoster(r.rows), false); }).catch(function(err){ toast(err.message); }); return; }
+  if(t.id === 'mkFile' && t.files[0]){
+    var mf = new FileReader();
+    mf.onload = function(){ t.value = ''; var r = MKCourse.fromText(mf.result); if(r.error){ toast(r.error); return; } var last = null; r.docs.forEach(function(x){ last = MK.store.put(x) || last; }); if(!last){ toast('存不進這台電腦（瀏覽器空間不足或封鎖網站資料）'); return; } if(r.docs.length === 1) mkImport(last.id); else { openModal(mkPickHtml(), true); toast('讀到 ' + r.docs.length + ' 個課程專案，請選一個'); } };
+    mf.readAsText(t.files[0]); return;
+  }
   if(t.id === 'bFile' && t.files[0]){
     if(liveAnywhere()){ t.value = ''; blocked('有分頁正在簽到，不能還原備份。'); return; }
     var fr = new FileReader();
