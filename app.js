@@ -435,7 +435,7 @@ function addRoster(list, replace){
 var MK = window.MKCourse && window.MKCourse.store ? window.MKCourse : null;
 function mkPickHtml(){
   var list = MK.store.list();
-  return '<h2>📥 從課程專案帶入</h2><p class="small">課程專案是同一台電腦上各辦訓工具共用的課程與名單（招生海報、訓練證書產生器…）。帶入會<b>取代這個課程的名單</b>，課程名稱和辦訓單位也會換成專案裡的；堂次和簽到紀錄不動。</p>' +
+  return '<h2>📥 從課程專案帶入</h2><p class="small">課程專案是同一台電腦上各辦訓工具共用的課程與名單（招生海報、訓練證書產生器…）。帶入會<b>取代這個課程的名單</b>（課程專案沒有名單時保留目前名單），課程名稱和辦訓單位也會換成專案裡的；堂次和簽到紀錄不動。</p>' +
     (list.length ? '<div class="stack col">' + list.map(function(d){ return '<button type="button" class="btn alt" data-mkin="' + esc(d.id) + '">' + esc(MKCourse.label(d)) + ' <small>' + esc(MKCourse.when(d)) + (C.mk === d.id ? '・目前連結' : '') + '</small></button>'; }).join('') + '</div>' : '<p>這台電腦還沒有課程專案。可以在「⬇ 匯出・列印」按「📤 存到課程專案」建立，或開啟別人給你的課程專案檔。</p>') +
     '<div class="stack"><label class="btn alt">📂 開啟課程專案檔（.json）<input type="file" id="mkFile" accept=".json,application/json" hidden></label><button type="button" class="btn alt" data-act="close">取消</button></div>';
 }
@@ -443,12 +443,12 @@ function mkImport(id){
   var d = MK.store.get(id); if(!d){ toast('找不到這個課程專案'); return; }
   if(courseLive(C.id)){ blocked('簽到中不能取代整份名單。'); return; }
   var go = function(){
-    C.roster = d.students.map(function(s){ return {no:s.sid, name:s.name, idno:s.idNo || '', group:s.group || ''}; });
+    if(d.students.length) C.roster = d.students.map(function(s){ return {no:s.sid, name:s.name, idno:s.idNo || '', group:s.group || ''}; });
     if(d.course.title) C.name = P.cut(d.course.title + (d.course.term ? ' ' + d.course.term : ''), 40);
     if(d.course.org) C.unit = P.cut(d.course.org, 40);
-    C.mk = d.id; saveC(); closeModal(); render(); toast('已帶入「' + d.course.title + '」' + C.roster.length + ' 人');
+    C.mk = d.id; saveC(); closeModal(); render(); toast('已帶入「' + d.course.title + '」' + (d.students.length ? C.roster.length + ' 人' : '（課程專案還沒有名單，目前名單保留）'));
   };
-  if(C.roster.length) sureOr('用課程專案「' + P.cut(d.course.title, 20) + '」取代整份名單（' + C.roster.length + ' 人）', go); else go();
+  if(C.roster.length && d.students.length) sureOr('用課程專案「' + P.cut(d.course.title, 20) + '」取代整份名單（' + C.roster.length + ' 人）', go); else go();
 }
 function mkExport(){
   var S = P.summary(C, now()), old = C.mk ? MK.store.get(C.mk) : null, oldBy = {};
