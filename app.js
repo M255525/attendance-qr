@@ -463,6 +463,7 @@ function mkExport(){
   if(C.unit) course.org = C.unit;
   if(S.planned > 0) course.hours = S.planned;
   if(dates.length){ course.start = dates[0]; course.end = dates[dates.length - 1]; }
+  if(C.sessions.length) course.sessions = C.sessions.map(function(s){ return {date:s.date, start:s.start, end:s.end, hours:P.sessHours(s), title:s.title || ''}; });
   var doc = MK.store.save(C.mk || null, {course:course, students:students, result:{planned:S.planned, ratio:C.rule.ratio || '', sessions:C.sessions.length, hours:hours, pass:pass}}, 'attendance-qr');
   if(!doc){ toast('瀏覽器空間不足或封鎖網站資料，存不進課程專案；請改用「給訓練證書產生器的名單」Excel'); return; }
   C.mk = doc.id; saveC();
