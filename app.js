@@ -460,6 +460,8 @@ function mkExport(){
     return Object.assign({}, o, {sid:r.p.no || '', name:r.p.name, idNo:r.p.idno || o.idNo || '', group:r.p.group || o.group || ''});
   });
   var dates = C.sessions.map(function(s){ return s.date; }).filter(Boolean).sort(), course = {title:C.name};
+  // 帶入時課程名稱是「課名 期別」合在一起；名稱沒改過就別寫回去，否則期別會一直黏進課名
+  if(old && old.course.title && C.name === P.cut(old.course.title + (old.course.term ? ' ' + old.course.term : ''), 40)) delete course.title;
   if(C.unit) course.org = C.unit;
   if(S.planned > 0) course.hours = S.planned;
   if(dates.length){ course.start = dates[0]; course.end = dates[dates.length - 1]; }
